@@ -46,16 +46,17 @@ public class ProcurementSchedulerJob extends Job {
 				log.info("after consuming = {}", msg);
 				if (msg instanceof StompJmsMessage) {
 					StompJmsMessage smsg = ((StompJmsMessage) msg);
+					log.info("after parsing msg = {}", smsg.getFrame()
+							.contentAsString());
 					body += smsg.getFrame().contentAsString().substring(10)
 							+ ",";
 					hasMsg = true;
-				} else if (msg == null)
-
-				{
+				} else if (msg == null) {
 					System.out.println("No Books in the Queue");
 					System.out
 							.println("No new messages. Exiting due to timeout - "
 									+ waitUntil / 1000 + " sec");
+					hasMsg = false;
 					break;
 				} else {
 					System.out.println("Unexpected message type: "
