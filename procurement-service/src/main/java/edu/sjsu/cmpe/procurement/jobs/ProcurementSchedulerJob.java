@@ -139,9 +139,8 @@ public class ProcurementSchedulerJob extends Job {
 		Session session = connection.createSession(false,
 				Session.AUTO_ACKNOWLEDGE);
 
-		StompJmsMessage msg = (StompJmsMessage) session
-				.createTextMessage(strResponse.getEntity(String.class));
-		msg.setLongProperty("id", System.currentTimeMillis());
+		// StompJmsMessage msg = (StompJmsMessage) session
+		// .createTextMessage(strResponse.getEntity(String.class));
 		// System.out.println("Publisher Sending the books to Queue"+strResponse.getEntity(String.class));
 		// System.out.println("Msg is"+msg);
 		for (int i = 0; i < size; i++) {
@@ -155,7 +154,10 @@ public class ProcurementSchedulerJob extends Job {
 					+ myCollection[i].getTitle() + "\":\""
 					+ myCollection[i].getCategory() + "\":\""
 					+ myCollection[i].getCoverimage() + "\"";
-			msg = (StompJmsMessage) session.createTextMessage(data);
+			StompJmsMessage msg = (StompJmsMessage) session
+					.createTextMessage(data);
+			msg.setLongProperty("id", System.currentTimeMillis());
+
 			System.out.println("Books sending to Library:" + data);
 			ProcurementService.producer.send(msg);
 			ProcurementService.producer
