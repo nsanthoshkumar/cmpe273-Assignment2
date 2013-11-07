@@ -33,7 +33,7 @@ public class ProcurementService extends Service<ProcurementServiceConfiguration>
     public static Client jerseyClient;
     public static MessageConsumer consumer;
     public static MessageProducer producer;
-    public static Session session;
+    // public static Session session;
     public static String topicName;
     public static void main(String[] args) throws Exception {
 	new ProcurementService().run(args);
@@ -85,7 +85,7 @@ public class ProcurementService extends Service<ProcurementServiceConfiguration>
 	factory.setBrokerURI("tcp://" + host + ":" + port);
 	Connection connection = factory.createConnection(user, password);
 	connection.start();
-	session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	Destination dest = new StompJmsDestination(destination);
 	 consumer = session.createConsumer(dest);
 	 log.debug("Queue name is {}. Topic is {}", queueName, topicName);

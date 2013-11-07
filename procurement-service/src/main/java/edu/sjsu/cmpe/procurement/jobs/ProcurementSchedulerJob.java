@@ -2,11 +2,14 @@ package edu.sjsu.cmpe.procurement.jobs;
 
 import java.util.Map;
 
+import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.Session;
 
+import org.fusesource.stomp.jms.StompJmsConnectionFactory;
 import org.fusesource.stomp.jms.StompJmsDestination;
 import org.fusesource.stomp.jms.message.StompJmsMessage;
 import org.slf4j.Logger;
@@ -128,7 +131,15 @@ public class ProcurementSchedulerJob extends Job {
 		Book[] myCollection = collector.get("shipped_books");
 		int size = myCollection.length;
 
-		StompJmsMessage msg = (StompJmsMessage) ProcurementService.session
+		// get connection
+		StompJmsConnectionFactory factory = new StompJmsConnectionFactory();
+		factory.setBrokerURI("tcp://" + "54.215.210.214" + ":" + 61613);
+		Connection connection = factory.createConnection("admin", "password");
+		connection.start();
+		Session session = connection.createSession(false,
+				Session.AUTO_ACKNOWLEDGE);
+
+		StompJmsMessage msg = (StompJmsMessage) session
 				.createTextMessage(strResponse.getEntity(String.class));
 		msg.setLongProperty("id", System.currentTimeMillis());
 		// System.out.println("Publisher Sending the books to Queue"+strResponse.getEntity(String.class));
@@ -138,14 +149,13 @@ public class ProcurementSchedulerJob extends Job {
 					+ myCollection[i].getCategory();
 			Destination topicdestination = new StompJmsDestination(
 					ProcurementService.topicName);
-			ProcurementService.producer = ProcurementService.session
+			ProcurementService.producer = session
 					.createProducer(topicdestination);
 			String data = myCollection[i].getIsbn() + ":" + "\""
 					+ myCollection[i].getTitle() + "\":\""
 					+ myCollection[i].getCategory() + "\":\""
 					+ myCollection[i].getCoverimage() + "\"";
-			msg = (StompJmsMessage) ProcurementService.session
-					.createTextMessage(data);
+			msg = (StompJmsMessage) session.createTextMessage(data);
 			System.out.println("Books sending to Library:" + data);
 			ProcurementService.producer.send(msg);
 			ProcurementService.producer
