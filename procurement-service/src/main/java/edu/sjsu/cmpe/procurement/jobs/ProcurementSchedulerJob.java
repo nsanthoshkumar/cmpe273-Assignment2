@@ -41,8 +41,9 @@ public class ProcurementSchedulerJob extends Job {
 
 			long waitUntil = 500;
 			while (true) {
-
+				log.info("before consuming");
 				msg = ProcurementService.consumer.receive(waitUntil);
+				log.info("after consuming = {}", msg);
 				if (msg instanceof StompJmsMessage) {
 					StompJmsMessage smsg = ((StompJmsMessage) msg);
 					body += smsg.getFrame().contentAsString().substring(10)
@@ -96,7 +97,7 @@ public class ProcurementSchedulerJob extends Job {
 				}
 
 			} // end hasMsg if
-			
+
 			doGetFromPublisher();
 
 		} catch (JMSException e) {
